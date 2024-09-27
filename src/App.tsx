@@ -2,7 +2,8 @@
 // import reactLogo from "./assets/react.svg";
 // import viteLogo from "/vite.svg";
 import "./App.css";
-import NotificationComponent from "./components/NotificationComponent";
+import { Login } from "./components/auth/Login";
+// import NotificationComponent from "./components/NotificationComponent";
 // import SocketsIO from "./components/SocketsIO";
 // import MyComponent from "./components/MyComponent";
 
@@ -11,9 +12,7 @@ function App() {
 
   return (
     <>
-      {/* <MyComponent /> */}
-      {/* <SocketsIO /> */}
-      <NotificationComponent />
+      <Login />
     </>
   );
 }

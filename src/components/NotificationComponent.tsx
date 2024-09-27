@@ -1,13 +1,22 @@
-import React, { useEffect, useState } from "react";
-import useSocket from "../useSocket";
+import { useEffect, useState } from "react";
+import useSocket from "./useSocket";
 
-const NotificationComponent: React.FC = () => {
-  const socketRef = useSocket("http://localhost:6001");
+type User = {
+  user: string;
+  id_user: number;
+};
+
+export const NotificationComponent = ({ id_user, user }: User) => {
+  const { socketRef, connectSocket } = useSocket("http://localhost:6001");
   const [notificaciones, setNotificaciones] = useState<string[]>([]);
 
   useEffect(() => {
-    if (socketRef.current) {
-      socketRef.current.on("notificacion", (data: string) => {
+    connectSocket(id_user);
+
+    const socket = socketRef.current; // Copiar el valor de socketRef.current a una variable local
+
+    if (socket) {
+      socket.on("notificacion", (data: string) => {
         console.log("Notificación recibida:", data);
         setNotificaciones((prevNotificaciones) => [
           ...prevNotificaciones,
@@ -15,11 +24,18 @@ const NotificationComponent: React.FC = () => {
         ]);
       });
     }
-  }, [socketRef]);
+    return () => {
+      if (socket) {
+        socket.off("notificacion");
+      }
+      // disconnect();
+    };
+  }, [connectSocket, id_user, socketRef]);
 
   return (
     <div>
       <h1>Notificaciones en Tiempo Real</h1>
+      <h3>{user}</h3>
       {notificaciones.length > 0 ? (
         <ul>
           {notificaciones.map((notificacion, index) => (
@@ -32,5 +48,4 @@ const NotificationComponent: React.FC = () => {
     </div>
   );
 };
-
-export default NotificationComponent;
+// export default NotificationComponent;
