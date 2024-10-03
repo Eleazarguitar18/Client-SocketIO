@@ -3,15 +3,17 @@
 // import viteLogo from "/vite.svg";
 import "./App.css";
 import { Login } from "./components/auth/Login";
+// import { Login2 } from "./components/auth/Login2";
 // import NotificationComponent from "./components/NotificationComponent";
 // import SocketsIO from "./components/SocketsIO";
 // import MyComponent from "./components/MyComponent";
-
 function App() {
   // const [count, setCount] = useState(0);
-
+  // const socket =
   return (
     <>
+      <div>probando socket</div>
+      {/* <Login2 /> */}
       <Login />
     </>
   );
