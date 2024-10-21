@@ -1,11 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { url_base, url_base_socket } from "./urlbase.routes";
-// import { NotificationComponent } from "../NotificationComponent";
 import { io, Socket } from "socket.io-client";
 import { ListAgenda } from "../ListAgenda";
-// import useSocket from "../hooks/useSocket";
-// import useSocket from "../useSocket";
 
 type Credenciales = {
   email: string;
@@ -23,49 +20,6 @@ export const Login: React.FC = () => {
   const [token, setToken] = useState<string | null>(null);
   const [shouldUpdateAgenda, setShouldUpdateAgenda] = useState<boolean>(false);
   const [key, setKey] = useState(0);
-  // const { connectSocket } = useSocket("http://localhost:6001");
-  // useEffect(() => {
-  //   setShouldUpdateAgenda(true);
-  // }, [shouldUpdateAgenda]);
-
-  // useEffect(() => {
-  //   if (socket) {
-  //     // Escucha un evento cuando el socket esté listo
-
-  //     socket.on("connect", () => {
-  //       console.log(socket_id, userId, userName);
-
-  //       const id = socket.id; // Captura el valor de socket.id
-  //       if (id) {
-  //         // Asegurarse de que id no sea undefined
-  //         setSocketId(id); // Actualiza el estado solo si id tiene un valor
-  //         console.log(`Este es el id de la conexion: ${id}`);
-  //         // Enviar datos al servidor inmediatamente después de conectarse
-  //         if (userId) {
-  //           socket.emit("registerUser", { userId, socketId: id });
-  //         }
-  //       }
-  //       // console.log(`Este es el id de la conexion: ${socket.id}`);
-  //     });
-  //     socket.on("agenda", () => {
-  //       console.log("dice el server que se agrego una agenda en la bd :v");
-  //       setShouldUpdateAgenda(false);
-  //       setShouldUpdateAgenda(true);
-  //     });
-  //     socket.on("conexionID", (data) => {
-  //       console.log("El servidor envia el Id de la conexion: ", data);
-  //       // setShouldUpdateAgenda(true);
-  //     });
-  //   }
-  //   // Limpia el listener cuando el componente se desmonta
-  //   return () => {
-  //     if (socket) {
-  //       // socket.off("connect");
-  //       socket.off("agenda");
-  //       socket.off("conexionID");
-  //     }
-  //   };
-  // }, [socket, userId]);
   useEffect(() => {
     if (userId && userName) {
       console.log("Valores actualizados:", userId, userName);
@@ -88,15 +42,23 @@ export const Login: React.FC = () => {
       }
       // console.log(`Este es el id de la conexion: ${socket.id}`);
     });
-    socket.on("agenda", () => {
+    socket.on("agenda", (data) => {
       console.log("dice el server que se agrego una agenda en la bd :v");
+      if (data && data.message) {
+        console.log("Mensaje recibido:", data.message);
+        // Puedes actualizar el estado o realizar otras acciones con el mensaje recibido
+      } else {
+        console.error("Datos no válidos recibidos:", data);
+      }
       setKey((prevKey) => prevKey + 1);
     });
     socket.on("conexionID", (data) => {
       console.log("El ID de la conexion es: ", data);
       // setShouldUpdateAgenda(true);
     });
-
+    socket.on("registrationError", (data: any) => {
+      console.log("ocurrio un error", data);
+    });
     // console.log(`Este es el id de la conexion: ${socket.id}`);
   };
 
@@ -118,22 +80,7 @@ export const Login: React.FC = () => {
         setUserId(response.data.user.id);
         setUserName(response.data.user.name);
         setToken(response.data.access_token);
-        // console.log(socket_id, userId, userName);
-        // console.log(response.data.user.name);
-        // console.log(response.data.user.id);
-        // console.log(response.data);
-
-        // if (socket) {
-        //   socket.connect(); // Conecta el socket manualmente
-        // }
-        // conexionSocket(response.data.user.id);
         await conexionSocket(url_base_socket, response.data.user.id);
-        // console.log({
-        //   id_socket: socket_id,
-        //   id_user: userId,
-        //   user: userName,
-        // });
-        // Conectar al socket después del inicio de sesión exitoso
         setShouldUpdateAgenda(true);
       }
     } catch (error) {
@@ -162,10 +109,6 @@ export const Login: React.FC = () => {
         />
         <button type="submit">Iniciar Sesión</button>
       </form>
-      {/* {userId && (
-        <NotificationComponent id_user={parseInt(userId)} user={userName} />
-      )} */}
-      {/* Renderiza ListAgenda cuando se actualice el estado */}
       {shouldUpdateAgenda && (
         <ListAgenda
           key={key} //
